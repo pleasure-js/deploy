@@ -1,0 +1,60 @@
+Arguments: 
+  /Users/tin/.nvm/versions/node/v8.15.0/bin/node /usr/local/Cellar/yarn/1.16.0/libexec/bin/yarn.js add pleasure-utils
+
+PATH: 
+  /usr/local/opt/openssl/bin:/Users/tin/.nvm/versions/node/v8.15.0/bin:/Users/myuser/Library/Android/sdk/tools:/Users/tin/Library/Android/sdk/emulator:/Users/tin/Library/Android/sdk/platform-tools:/Users/tin/projects/ffmpeg-helpers:/Users/tin/bin:/usr/local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/tin/projects/pleasure-suite-builder/packages/pleasure-deploy/node_modules/.bin
+
+Yarn version: 
+  1.16.0
+
+Node version: 
+  8.15.0
+
+Platform: 
+  darwin x64
+
+Trace: 
+  Error: https://registry.yarnpkg.com/pleasure-utils: Not found
+      at Request.params.callback [as _callback] (/usr/local/Cellar/yarn/1.16.0/libexec/lib/cli.js:66091:18)
+      at Request.self.callback (/usr/local/Cellar/yarn/1.16.0/libexec/lib/cli.js:129590:22)
+      at emitTwo (events.js:126:13)
+      at Request.emit (events.js:214:7)
+      at Request.<anonymous> (/usr/local/Cellar/yarn/1.16.0/libexec/lib/cli.js:130562:10)
+      at emitOne (events.js:116:13)
+      at Request.emit (events.js:211:7)
+      at IncomingMessage.<anonymous> (/usr/local/Cellar/yarn/1.16.0/libexec/lib/cli.js:130484:12)
+      at Object.onceWrapper (events.js:313:30)
+      at emitNone (events.js:111:20)
+
+npm manifest: 
+  {
+    "name": "pleasure-deploy",
+    "author": "Martin Rafael <tin@devtin.io>",
+    "version": "1.0.0",
+    "main": "dist/pleasure-deploy.js",
+    "module": "dist/pleasure-deploy.esm.js",
+    "license": "MIT",
+    "scripts": {
+      "build": "rollup -c",
+      "build:live": "nodemon -w src --exec yarn build",
+      "build:docs": "jsdoc2md --template README.hbs --files dist/pleasure-deploy.js"
+    },
+    "devDependencies": {
+      "jsdoc-to-markdown": "^5.0.0",
+      "nodemon": "^1.19.1",
+      "rollup": "^1.12.4",
+      "rollup-plugin-alias": "^1.5.1",
+      "rollup-plugin-babel-minify": "^8.0.0",
+      "rollup-plugin-commonjs": "^10.0.0",
+      "rollup-plugin-json": "^4.0.0"
+    },
+    "dependencies": {
+      "inquirer": "^6.3.1"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
