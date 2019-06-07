@@ -1,4 +1,5 @@
 import { createNginxProxy } from './lib/create-nginx-proxy.js'
+import { createDocker } from './lib/create-docker.js'
 import inquirer from 'inquirer'
 
 function parseArgs (args) {
@@ -41,9 +42,7 @@ async function requestIfNotProvided (prompts, rawArgs) {
     answers = await inquirer.prompt(prompts)
   }
 
-  const final = Object.assign({}, args, answers)
-  console.log({ final })
-  return final
+  return Object.assign({}, args, answers)
 }
 
 export default function ({ printCommandsIndex, subcommand }) {
@@ -102,25 +101,27 @@ export default function ({ printCommandsIndex, subcommand }) {
               // ask for ip
               // ask for ports
               // ask for packages (actually, prompt a file where to set all of this up)
-              const { nginxDestination, apiHost } = await inquirer.prompt(
+              const { localPort } = await inquirer.prompt(
                 [
                   {
-                    name: 'nginxDestination',
-                    default: 'nginx.conf',
+                    name: 'appURL',
+                    help: 'Application URL (config for pleasure-api-client)',
+                    default: 'http://localhost:8080',
                     validate (s) {
-                      return !s ? `Enter nginx.conf destination` : true
+                      return !s ? `Enter local port binding` : true
                     }
                   },
                   {
-                    name: 'apiHost',
-                    default: 'api',
+                    name: 'localPort',
+                    help: 'Port where you want the application running in the host machine.',
+                    default: '8080',
                     validate (s) {
-                      return !s ? `Enter the address of the api` : true
+                      return !s ? `Enter local port binding` : true
                     }
                   }
                 ]
               )
-              createNginxProxy(nginxDestination, { apiHost })
+              createDocker(localPort).forEach(console.log.bind(console))
               process.exit(0)
             }
           }

@@ -3,7 +3,7 @@
  * (c) 2019-2019 Martin Rafael <tin@devtin.io>
  * MIT
  */
-import { getConfig } from 'pleasure-utils';
+import { getConfig, findRoot } from 'pleasure-utils';
 import fs from 'fs';
 import mustache from 'mustache';
 import path from 'path';
@@ -13,6 +13,44 @@ function createNginxProxy (dest, data = {}) {
   const { port, prefix } = getConfig('api');
   const nginxTemplate = fs.readFileSync(path.join(__dirname, '../templates/nginx-config.conf')).toString();
   return fs.writeFileSync(dest, mustache.render(nginxTemplate, Object.assign({ port, prefix }, data)))
+}
+
+function createDocker (localPort) {
+  /*
+  ask for:
+  - localPort
+  - if .gitignore found, dockerignore equals .gitignore
+   */
+  const renderData = {
+    localPort
+  };
+  const dockerApi = fs.readFileSync(path.join(__dirname, '../templates/Dockerfile-api')).toString();
+  const dockerUI = fs.readFileSync(path.join(__dirname, '../templates/Dockerfile-ui')).toString();
+  const dockerCompose = fs.readFileSync(path.join(__dirname, '../templates/docker-compose.yml')).toString();
+  let dockerIgnore = fs.readFileSync(path.join(__dirname, '../templates/.dockerignore')).toString();
+
+  const dockerfileApi = findRoot('Dockerfile-api');
+  const dockerfileUI = findRoot('Dockerfile-ui');
+  const dockerComposeFile = findRoot('docker-compose.yml');
+  const dockerignoreFile = findRoot('.dockerignore');
+
+  fs.writeFileSync(dockerfileApi, mustache.render(dockerApi, renderData));
+  fs.writeFileSync(dockerfileUI, mustache.render(dockerUI, renderData));
+  fs.writeFileSync(dockerComposeFile, mustache.render(dockerCompose, renderData));
+
+  if (fs.existsSync(findRoot('.gitignore'))) {
+    dockerIgnore = fs.readFileSync(findRoot('.gitignore'));
+  }
+
+  fs.writeFileSync(dockerignoreFile, dockerIgnore);
+  const projectRoot = findRoot();
+
+  return [
+    path.relative(projectRoot, dockerfileUI),
+    path.relative(projectRoot, dockerfileApi),
+    path.relative(projectRoot, dockerComposeFile),
+    path.relative(projectRoot, dockerignoreFile)
+  ]
 }
 
 function parseArgs (args) {
@@ -56,7 +94,6 @@ async function requestIfNotProvided (prompts, rawArgs) {
   }
 
   const final = Object.assign({}, args, answers);
-  console.log({ final });
   return final
 }
 
@@ -116,25 +153,27 @@ function index ({ printCommandsIndex, subcommand }) {
               // ask for ip
               // ask for ports
               // ask for packages (actually, prompt a file where to set all of this up)
-              const { nginxDestination, apiHost } = await inquirer.prompt(
+              const { localPort } = await inquirer.prompt(
                 [
                   {
-                    name: 'nginxDestination',
-                    default: 'nginx.conf',
+                    name: 'appURL',
+                    help: 'Application URL (config for pleasure-api-client)',
+                    default: 'http://localhost:8080',
                     validate (s) {
-                      return !s ? `Enter nginx.conf destination` : true
+                      return !s ? `Enter local port binding` : true
                     }
                   },
                   {
-                    name: 'apiHost',
-                    default: 'api',
+                    name: 'localPort',
+                    help: 'Port where you want the application running in the host machine.',
+                    default: '8080',
                     validate (s) {
-                      return !s ? `Enter the address of the api` : true
+                      return !s ? `Enter local port binding` : true
                     }
                   }
                 ]
               );
-              createNginxProxy(nginxDestination, { apiHost });
+              createDocker(localPort).forEach(console.log.bind(console));
               process.exit(0);
             }
           }
