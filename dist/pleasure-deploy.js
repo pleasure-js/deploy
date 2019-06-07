@@ -97,8 +97,7 @@ async function requestIfNotProvided (prompts, rawArgs) {
     answers = await inquirer.prompt(prompts);
   }
 
-  const final = Object.assign({}, args, answers);
-  return final
+  return Object.assign({}, args, answers)
 }
 
 function index ({ printCommandsIndex, subcommand }) {
