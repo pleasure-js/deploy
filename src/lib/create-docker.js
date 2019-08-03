@@ -3,14 +3,15 @@ import fs from 'fs'
 import mustache from 'mustache'
 import path from 'path'
 
-export function createDocker (localPort) {
+export function createDocker ({localPort, appURL}) {
   /*
   ask for:
   - localPort
   - if .gitignore found, dockerignore equals .gitignore
    */
   const renderData = {
-    localPort
+    localPort,
+    appURL
   }
   const dockerApi = fs.readFileSync(path.join(__dirname, '../templates/Dockerfile-api')).toString()
   const dockerUI = fs.readFileSync(path.join(__dirname, '../templates/Dockerfile-ui')).toString()

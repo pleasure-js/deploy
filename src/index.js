@@ -101,7 +101,7 @@ export default function ({ printCommandsIndex, subcommand }) {
               // ask for ip
               // ask for ports
               // ask for packages (actually, prompt a file where to set all of this up)
-              const { localPort } = await inquirer.prompt(
+              const { localPort, appURL } = await inquirer.prompt(
                 [
                   {
                     name: 'appURL',
@@ -121,7 +121,7 @@ export default function ({ printCommandsIndex, subcommand }) {
                   }
                 ]
               )
-              createDocker(localPort).forEach(console.log.bind(console))
+              createDocker({ localPort, appURL }).forEach(console.log.bind(console))
               process.exit(0)
             }
           }

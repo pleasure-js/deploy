@@ -19,14 +19,15 @@ function createNginxProxy (dest, data = {}) {
   return fs.writeFileSync(dest, mustache.render(nginxTemplate, Object.assign({ port, prefix }, data)))
 }
 
-function createDocker (localPort) {
+function createDocker ({localPort, appURL}) {
   /*
   ask for:
   - localPort
   - if .gitignore found, dockerignore equals .gitignore
    */
   const renderData = {
-    localPort
+    localPort,
+    appURL
   };
   const dockerApi = fs.readFileSync(path.join(__dirname, '../templates/Dockerfile-api')).toString();
   const dockerUI = fs.readFileSync(path.join(__dirname, '../templates/Dockerfile-ui')).toString();
@@ -156,7 +157,7 @@ function index ({ printCommandsIndex, subcommand }) {
               // ask for ip
               // ask for ports
               // ask for packages (actually, prompt a file where to set all of this up)
-              const { localPort } = await inquirer.prompt(
+              const { localPort, appURL } = await inquirer.prompt(
                 [
                   {
                     name: 'appURL',
@@ -176,7 +177,7 @@ function index ({ printCommandsIndex, subcommand }) {
                   }
                 ]
               );
-              createDocker(localPort).forEach(console.log.bind(console));
+              createDocker({ localPort, appURL }).forEach(console.log.bind(console));
               process.exit(0);
             }
           }
