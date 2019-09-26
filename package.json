@@ -22,6 +22,6 @@
   "dependencies": {
     "inquirer": "^6.3.1",
     "mustache": "^3.0.1",
-    "pleasure-utils": "keepwondering/pleasure-utils"
+    "pleasure-utils": "keepwondering/pleasure-utils#v1-beta"
   }
 }
