@@ -13,11 +13,11 @@ docker build -t myapp/api -f Dockerfile-api my-api
 # run ui image
 
 ```sh
-docker run -p 8080:80 -t myapp/ui
+docker run -p 8080:80 -ti myapp/ui
 ```
 
 # run api image
 
 ```sh
-docker run -p 3000:3000 -t myapp/api
+docker run -p 3000:3000 -ti myapp/api
 ```
