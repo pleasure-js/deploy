@@ -1,0 +1,29 @@
+version: "3.7"
+services:
+  ui:
+    build:
+      context: ./my-app
+      dockerfile: ./Dockerfile-ui
+    ports:
+      - "8000:80"
+    depends_on:
+      - api
+    networks:
+      - public
+      - vpc
+  api:
+    build:
+      context: ./my-app
+      dockerfile: ./Dockerfile-api
+    depends_on:
+      - mongo
+    networks:
+      - vpc
+  mongo:
+    image: mongo
+    networks:
+      - vpc
+
+networks:
+  public:
+  vpc:
