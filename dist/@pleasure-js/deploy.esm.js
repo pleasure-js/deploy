@@ -1,51 +1,103 @@
-import { createNginxProxy } from './lib/create-nginx-proxy.js'
-import { createDocker } from './lib/create-docker.js'
-import inquirer from 'inquirer'
+/*!
+ * @pleasure-js/deploy v1.0.0
+ * (c) 2019-2020 Martin Rafael <tin@devtin.io>
+ * MIT
+ */
+import { getConfig, findRoot } from '@pleasure-js/utils';
+import fs from 'fs';
+import mustache from 'mustache';
+import path from 'path';
+import inquirer from 'inquirer';
+
+function createNginxProxy (dest, data = {}) {
+  const { port, prefix } = getConfig('api');
+  const nginxTemplate = fs.readFileSync(path.join(__dirname, '../templates/nginx-config.conf')).toString();
+  return fs.writeFileSync(dest, mustache.render(nginxTemplate, Object.assign({ port, prefix }, data)))
+}
+
+function createDocker ({localPort, appURL}) {
+  /*
+  ask for:
+  - localPort
+  - if .gitignore found, dockerignore equals .gitignore
+   */
+  const renderData = {
+    localPort,
+    appURL
+  };
+  const dockerApi = fs.readFileSync(path.join(__dirname, '../templates/Dockerfile-api')).toString();
+  const dockerUI = fs.readFileSync(path.join(__dirname, '../templates/Dockerfile-ui')).toString();
+  const dockerCompose = fs.readFileSync(path.join(__dirname, '../templates/docker-compose.yml')).toString();
+  let dockerIgnore = fs.readFileSync(path.join(__dirname, '../templates/.dockerignore')).toString();
+
+  const dockerfileApi = findRoot('Dockerfile-api');
+  const dockerfileUI = findRoot('Dockerfile-ui');
+  const dockerComposeFile = findRoot('docker-compose.yml');
+  const dockerignoreFile = findRoot('.dockerignore');
+
+  fs.writeFileSync(dockerfileApi, mustache.render(dockerApi, renderData));
+  fs.writeFileSync(dockerfileUI, mustache.render(dockerUI, renderData));
+  fs.writeFileSync(dockerComposeFile, mustache.render(dockerCompose, renderData));
+
+  if (fs.existsSync(findRoot('.gitignore'))) {
+    dockerIgnore = fs.readFileSync(findRoot('.gitignore'));
+  }
+
+  fs.writeFileSync(dockerignoreFile, dockerIgnore);
+  const projectRoot = findRoot();
+
+  return [
+    path.relative(projectRoot, dockerfileUI),
+    path.relative(projectRoot, dockerfileApi),
+    path.relative(projectRoot, dockerComposeFile),
+    path.relative(projectRoot, dockerignoreFile)
+  ]
+}
 
 function parseArgs (args) {
-  const parsed = {}
-  let getNextV = false
+  const parsed = {};
+  let getNextV = false;
 
   for (let i = 0; i < args.length; i++) {
-    let val = args[i]
+    let val = args[i];
     if (getNextV && !/^--/.test(val)) {
-      parsed[getNextV] = val
-      getNextV = false
+      parsed[getNextV] = val;
+      getNextV = false;
       continue
     } else if (/^--/.test(val)) {
-      val = val.replace(/^[\-]+/, '')
+      val = val.replace(/^[\-]+/, '');
       if (val.indexOf('=') > 0) {
-        parsed[val.split('=', 2)[0]] = val.split('=', 2)[1]
+        parsed[val.split('=', 2)[0]] = val.split('=', 2)[1];
         continue
       }
-      getNextV = val
+      getNextV = val;
     }
-    parsed[val] = true
+    parsed[val] = true;
   }
   parsed.$get = function (arg) {
     return arg in parsed ? parsed[arg] : false
-  }
+  };
   return parsed
 }
 
 async function requestIfNotProvided (prompts, rawArgs) {
-  const args = parseArgs(rawArgs)
-  let answers = {}
+  const args = parseArgs(rawArgs);
+  let answers = {};
   prompts = prompts.map(prompt => {
     if (args.$get(prompt.name)) {
       return
     }
     return prompt
-  }).filter(Boolean)
+  }).filter(Boolean);
 
   if (prompts.length > 0) {
-    answers = await inquirer.prompt(prompts)
+    answers = await inquirer.prompt(prompts);
   }
 
   return Object.assign({}, args, answers)
 }
 
-export default function ({ printCommandsIndex, subcommand }) {
+function index ({ printCommandsIndex, subcommand }) {
   return {
     name: 'deploy',
     help: 'orchestrates configuration for deployment',
@@ -53,7 +105,7 @@ export default function ({ printCommandsIndex, subcommand }) {
       const DeployMain = {
         root: {
           command () {
-            printCommandsIndex(DeployMain.commands)
+            printCommandsIndex(DeployMain.commands);
           }
         },
         commands: [
@@ -87,9 +139,9 @@ export default function ({ printCommandsIndex, subcommand }) {
                   }
                 ],
                 process.argv
-              )
-              createNginxProxy(nginxDestination, { apiHost })
-              process.exit(0)
+              );
+              createNginxProxy(nginxDestination, { apiHost });
+              process.exit(0);
             }
           },
           {
@@ -120,15 +172,17 @@ export default function ({ printCommandsIndex, subcommand }) {
                     }
                   }
                 ]
-              )
-              createDocker({ localPort, appURL }).forEach(console.log.bind(console))
-              process.exit(0)
+              );
+              createDocker({ localPort, appURL }).forEach(console.log.bind(console));
+              process.exit(0);
             }
           }
         ]
-      }
-      const match = subcommand(DeployMain)
-      match(args)
+      };
+      const match = subcommand(DeployMain);
+      match(args);
     }
   }
 }
+
+export default index;

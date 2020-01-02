@@ -1,5 +1,5 @@
 {
-  "name": "pleasure-deploy",
+  "name": "@pleasure-js/deploy",
   "author": "Martin Rafael <tin@devtin.io>",
   "version": "1.0.0",
   "main": "dist/pleasure-deploy.js",
@@ -22,6 +22,6 @@
   "dependencies": {
     "inquirer": "^6.3.1",
     "mustache": "^3.0.1",
-    "pleasure-utils": "keepwondering/pleasure-utils#v1-beta"
+    "@pleasure-js/utils": "git@github.com:pleasure-js/utils.git#v1-beta"
   }
 }

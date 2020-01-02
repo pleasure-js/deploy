@@ -1,20 +1,20 @@
 /*!
- * pleasure-deploy v1.0.0
- * (c) 2019-2019 Martin Rafael <tin@devtin.io>
+ * @pleasure-js/deploy v1.0.0
+ * (c) 2019-2020 Martin Rafael <tin@devtin.io>
  * MIT
  */
 'use strict';
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var pleasureUtils = require('@pleasure-js/utils');
+var utils = require('@pleasure-js/utils');
 var fs = _interopDefault(require('fs'));
 var mustache = _interopDefault(require('mustache'));
 var path = _interopDefault(require('path'));
 var inquirer = _interopDefault(require('inquirer'));
 
 function createNginxProxy (dest, data = {}) {
-  const { port, prefix } = pleasureUtils.getConfig('api');
+  const { port, prefix } = utils.getConfig('api');
   const nginxTemplate = fs.readFileSync(path.join(__dirname, '../templates/nginx-config.conf')).toString();
   return fs.writeFileSync(dest, mustache.render(nginxTemplate, Object.assign({ port, prefix }, data)))
 }
@@ -34,21 +34,21 @@ function createDocker ({localPort, appURL}) {
   const dockerCompose = fs.readFileSync(path.join(__dirname, '../templates/docker-compose.yml')).toString();
   let dockerIgnore = fs.readFileSync(path.join(__dirname, '../templates/.dockerignore')).toString();
 
-  const dockerfileApi = pleasureUtils.findRoot('Dockerfile-api');
-  const dockerfileUI = pleasureUtils.findRoot('Dockerfile-ui');
-  const dockerComposeFile = pleasureUtils.findRoot('docker-compose.yml');
-  const dockerignoreFile = pleasureUtils.findRoot('.dockerignore');
+  const dockerfileApi = utils.findRoot('Dockerfile-api');
+  const dockerfileUI = utils.findRoot('Dockerfile-ui');
+  const dockerComposeFile = utils.findRoot('docker-compose.yml');
+  const dockerignoreFile = utils.findRoot('.dockerignore');
 
   fs.writeFileSync(dockerfileApi, mustache.render(dockerApi, renderData));
   fs.writeFileSync(dockerfileUI, mustache.render(dockerUI, renderData));
   fs.writeFileSync(dockerComposeFile, mustache.render(dockerCompose, renderData));
 
-  if (fs.existsSync(pleasureUtils.findRoot('.gitignore'))) {
-    dockerIgnore = fs.readFileSync(pleasureUtils.findRoot('.gitignore'));
+  if (fs.existsSync(utils.findRoot('.gitignore'))) {
+    dockerIgnore = fs.readFileSync(utils.findRoot('.gitignore'));
   }
 
   fs.writeFileSync(dockerignoreFile, dockerIgnore);
-  const projectRoot = pleasureUtils.findRoot();
+  const projectRoot = utils.findRoot();
 
   return [
     path.relative(projectRoot, dockerfileUI),

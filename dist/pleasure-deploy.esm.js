@@ -3,7 +3,7 @@
  * (c) 2019-2019 Martin Rafael <tin@devtin.io>
  * MIT
  */
-import { getConfig, findRoot } from 'pleasure-utils';
+import { getConfig, findRoot } from '@pleasure-js/utils';
 import fs from 'fs';
 import mustache from 'mustache';
 import path from 'path';
@@ -157,7 +157,7 @@ function index ({ printCommandsIndex, subcommand }) {
                 [
                   {
                     name: 'appURL',
-                    help: 'Application URL (config for pleasure-api-client)',
+                    help: 'Application URL (config for @pleasure-js/api-client)',
                     default: 'http://localhost:8080',
                     validate (s) {
                       return !s ? `Enter local port binding` : true

@@ -1,4 +1,4 @@
-import { getConfig } from 'pleasure-utils'
+import { getConfig } from '@pleasure-js/utils'
 import fs from 'fs'
 import mustache from 'mustache'
 import path from 'path'
