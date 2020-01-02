@@ -22,6 +22,6 @@
   "dependencies": {
     "inquirer": "^6.3.1",
     "mustache": "^3.0.1",
-    "@pleasure-js/utils": "git@github.com:pleasure-js/utils.git#v1-beta"
+    "@pleasure-js/utils": "git+ssh://git@github.com:pleasure-js/utils.git#v1-beta"
   }
 }
